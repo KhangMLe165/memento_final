@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memoir — Your story, forever</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--cream:#F5F0E8;--ink:#1A1612;--faded:#8A7F72;--warm:#C4A882;--accent:#8B4513;--paper:#EDE8DF;--border:#D4C9B8}
+  body{background:var(--cream);color:var(--ink);font-family:'Cormorant Garamond',Georgia,serif;min-height:100vh;line-height:1.7}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;opacity:0.35;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")}
+  .app{max-width:800px;margin:0 auto;padding:60px 32px 120px}
+
+  .header{text-align:center;margin-bottom:60px}
+  .eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:var(--faded);margin-bottom:14px}
+  .header h1{font-size:clamp(44px,8vw,76px);font-weight:300;letter-spacing:-0.02em;line-height:1}
+  .header h1 em{font-style:italic;color:var(--accent)}
+  .header-sub{margin-top:16px;font-size:18px;font-weight:300;color:var(--faded);font-style:italic;max-width:440px;margin-left:auto;margin-right:auto}
+  .divider{margin:26px auto;width:60px;height:1px;background:var(--border)}
+
+  .step{margin-bottom:52px}
+  .step-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:var(--warm);margin-bottom:8px}
+  .step h2{font-size:26px;font-weight:300;margin-bottom:18px;letter-spacing:-0.01em}
+  .name-input{width:100%;background:var(--paper);border:1px solid var(--border);border-radius:3px;padding:14px 18px;font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--ink);outline:none;transition:border-color 0.2s}
+  .name-input:focus{border-color:var(--warm)}
+
+  .upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+  @media(max-width:540px){.upload-grid{grid-template-columns:1fr}}
+  .upload-card{border:1.5px dashed var(--border);border-radius:6px;padding:28px 20px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;background:var(--paper)}
+  .upload-card:hover,.upload-card.dragover{border-color:var(--warm);background:#EAE3D6}
+  .upload-card input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .upload-card-icon{font-size:22px;margin-bottom:8px;opacity:0.55}
+  .upload-card-title{font-size:15px;font-weight:400;color:var(--ink);margin-bottom:4px}
+  .upload-card-sub{font-size:11px;color:var(--faded);font-family:'DM Mono',monospace}
+  .upload-count{display:block;margin-top:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);min-height:16px}
+
+  .preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:14px}
+  .preview-item{position:relative;aspect-ratio:1;border-radius:3px;overflow:hidden;background:var(--paper);border:1px solid var(--border)}
+  .preview-item img,.preview-item video{width:100%;height:100%;object-fit:cover;display:block}
+  .type-badge{position:absolute;bottom:4px;left:4px;background:rgba(26,22,18,0.75);color:#F5F0E8;font-family:'DM Mono',monospace;font-size:9px;padding:2px 5px;border-radius:2px}
+  .preview-remove{position:absolute;top:4px;right:4px;background:rgba(26,22,18,0.7);color:white;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.15s}
+  .preview-item:hover .preview-remove{opacity:1}
+  .text-file-list{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+  .text-file-item{display:flex;align-items:center;justify-content:space-between;background:var(--paper);border:1px solid var(--border);border-radius:3px;padding:10px 14px;font-size:14px}
+  .text-file-remove{background:none;border:none;color:var(--faded);cursor:pointer;font-size:14px;padding:0 4px}
+  .text-file-remove:hover{color:var(--accent)}
+  .audio-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .audio-item-row{display:flex;align-items:center;gap:12px;background:var(--paper);border:1px solid var(--border);border-radius:3px;padding:10px 14px}
+  .audio-item-row audio{flex:1;height:32px}
+  .audio-remove{background:none;border:none;color:var(--faded);cursor:pointer;font-size:14px;flex-shrink:0}
+  .audio-remove:hover{color:var(--accent)}
+
+  .questions{display:flex;flex-direction:column;gap:24px}
+  .question-block label{display:block;font-size:17px;font-weight:300;font-style:italic;color:var(--ink);margin-bottom:8px}
+  .question-block textarea{width:100%;background:var(--paper);border:1px solid var(--border);border-radius:3px;padding:12px 16px;font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--ink);resize:vertical;min-height:72px;outline:none;transition:border-color 0.2s;line-height:1.6}
+  .question-block textarea:focus{border-color:var(--warm)}
+  .question-block textarea::placeholder{color:var(--faded);font-style:italic}
+
+  .generate-btn{display:block;width:100%;padding:20px 40px;background:var(--ink);color:var(--cream);border:none;border-radius:3px;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;margin-top:40px}
+  .generate-btn:hover{background:var(--accent)}
+  .generate-btn:disabled{opacity:0.4;cursor:not-allowed;background:var(--ink)}
+  .error-msg{background:#FDF0ED;border:1px solid #E8C4B8;border-radius:3px;padding:14px 18px;color:var(--accent);font-size:14px;margin-top:14px;display:none}
+  .error-msg.visible{display:block}
+
+  .loading{display:none;padding:60px 0}
+  .loading.visible{display:block}
+  .loading-steps{display:flex;flex-direction:column;gap:16px;max-width:380px;margin:0 auto}
+  .loading-step{display:flex;align-items:center;gap:14px;font-size:17px;color:var(--faded);transition:all 0.4s;font-style:italic}
+  .loading-step.active{color:var(--ink)}
+  .loading-step.done{color:var(--border)}
+  .step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:all 0.3s}
+  .loading-step.active .step-dot{background:var(--accent);animation:blink 1.2s ease-in-out infinite}
+  .loading-step.done .step-dot{background:var(--warm)}
+  @keyframes blink{0%,100%{opacity:0.3}50%{opacity:1}}
+
+  .output-section{display:none;margin-top:64px;padding-top:64px;border-top:1px solid var(--border)}
+  .output-section.visible{display:block;animation:fadeIn 0.8s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  .output-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:40px}
+  .tab-btn{padding:12px 24px;background:none;border:none;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:var(--faded);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.2s}
+  .tab-btn.active{color:var(--ink);border-bottom-color:var(--ink)}
+  .tab-btn:hover{color:var(--ink)}
+  .tab-panel{display:none}
+  .tab-panel.active{display:block}
+  .site-preview{border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  .site-preview iframe{width:100%;border:none;min-height:700px;display:block}
+  .print-preview{font-size:18px;line-height:1.9;color:var(--ink)}
+  .print-preview h3{font-size:11px;font-family:'DM Mono',monospace;font-weight:400;letter-spacing:0.25em;text-transform:uppercase;color:var(--faded);margin:48px 0 18px}
+  .print-preview p{margin-bottom:20px}
+  .print-preview p:first-of-type::first-letter{font-size:68px;font-weight:300;line-height:0.8;float:left;margin:8px 12px 0 0;color:var(--accent)}
+  .output-actions{display:flex;gap:12px;margin-top:36px;flex-wrap:wrap}
+  .btn-primary{padding:12px 22px;background:var(--ink);border:1px solid var(--ink);border-radius:3px;font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--cream);cursor:pointer;transition:all 0.2s}
+  .btn-primary:hover{background:var(--accent);border-color:var(--accent)}
+  .btn-secondary{padding:12px 22px;background:transparent;border:1px solid var(--border);border-radius:3px;font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--faded);cursor:pointer;transition:all 0.2s}
+  .btn-secondary:hover{border-color:var(--ink);color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="eyebrow">A living memorial</div>
+    <h1>Your story, <em>forever</em></h1>
+    <div class="divider"></div>
+    <p class="header-sub">Upload your life. AI designs a memorial website unique to you.</p>
+  </header>
+
+  <div class="step">
+    <div class="step-label">Step 01</div>
+    <h2>What's your name?</h2>
+    <input type="text" class="name-input" id="person-name" placeholder="Your full name…">
+  </div>
+
+  <div class="step">
+    <div class="step-label">Step 02</div>
+    <h2>Upload your life</h2>
+    <div class="upload-grid">
+      <div class="upload-card" id="photo-zone">
+        <input type="file" id="photo-input" accept="image/*" multiple>
+        <div class="upload-card-icon">🖼</div>
+        <div class="upload-card-title">Photos</div>
+        <div class="upload-card-sub">JPG · PNG · HEIC</div>
+        <span class="upload-count" id="photo-count"></span>
+      </div>
+      <div class="upload-card" id="video-zone">
+        <input type="file" id="video-input" accept="video/*" multiple>
+        <div class="upload-card-icon">🎞</div>
+        <div class="upload-card-title">Videos</div>
+        <div class="upload-card-sub">MP4 · MOV · WEBM</div>
+        <span class="upload-count" id="video-count"></span>
+      </div>
+      <div class="upload-card" id="text-zone">
+        <input type="file" id="text-input" accept=".txt,.md" multiple>
+        <div class="upload-card-icon">📄</div>
+        <div class="upload-card-title">Notes & documents</div>
+        <div class="upload-card-sub">TXT · MD</div>
+        <span class="upload-count" id="text-count"></span>
+      </div>
+      <div class="upload-card" id="audio-zone">
+        <input type="file" id="audio-input" accept="audio/*" multiple>
+        <div class="upload-card-icon">🎙</div>
+        <div class="upload-card-title">Voice & audio</div>
+        <div class="upload-card-sub">MP3 · M4A · WAV</div>
+        <span class="upload-count" id="audio-count"></span>
+      </div>
+    </div>
+    <div class="preview-grid" id="photo-grid"></div>
+    <div class="preview-grid" id="video-grid"></div>
+    <div class="text-file-list" id="text-list"></div>
+    <div class="audio-list" id="audio-list"></div>
+  </div>
+
+  <div class="step">
+    <div class="step-label">Step 03</div>
+    <h2>In your own words</h2>
+    <div class="questions">
+      <div class="question-block">
+        <label>What do you want people to remember most about you?</label>
+        <textarea id="q1" placeholder="Your laugh, your stubbornness, the way you always had food ready…"></textarea>
+      </div>
+      <div class="question-block">
+        <label>Is there a recipe you want to pass down? Describe it.</label>
+        <textarea id="q2" placeholder="My braised pork belly that took all day. I never wrote it down, so here it is…"></textarea>
+      </div>
+      <div class="question-block">
+        <label>How did you show love — even when you never said the words?</label>
+        <textarea id="q3" placeholder="I never said 'I love you' but I always woke up early to make breakfast…"></textarea>
+      </div>
+      <div class="question-block">
+        <label>What do you most want your family to know?</label>
+        <textarea id="q4" placeholder="That every sacrifice was worth it. That I'm proud of who you've become…"></textarea>
+      </div>
+      <div class="question-block">
+        <label>A story you want your grandchildren to carry with them.</label>
+        <textarea id="q5" placeholder="I crossed the border with only $40 and a phone number on a piece of paper…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <button class="generate-btn" id="generate-btn" onclick="generateMemoir()">Build my memorial →</button>
+  <div class="error-msg" id="error-msg"></div>
+
+  <div class="loading" id="loading">
+    <div class="loading-steps">
+      <div class="loading-step" id="ls-1"><div class="step-dot"></div><span>Reading your photographs</span></div>
+      <div class="loading-step" id="ls-2"><div class="step-dot"></div><span>Writing your memoir</span></div>
+      <div class="loading-step" id="ls-3"><div class="step-dot"></div><span>Designing your memorial website</span></div>
+      <div class="loading-step" id="ls-4"><div class="step-dot"></div><span>Assembling everything</span></div>
+    </div>
+  </div>
+
+  <div class="output-section" id="output-section">
+    <div class="eyebrow" style="text-align:center;margin-bottom:8px">Your memorial is ready</div>
+    <h2 style="text-align:center;font-size:clamp(28px,5vw,48px);font-weight:300;font-style:italic;margin-bottom:32px" id="output-title">A life, remembered</h2>
+    <div class="output-tabs">
+      <button class="tab-btn active" onclick="switchTab('website',this)">Website</button>
+      <button class="tab-btn" onclick="switchTab('print',this)">Print / PDF</button>
+    </div>
+    <div class="tab-panel active" id="tab-website">
+      <div class="site-preview">
+        <iframe id="site-frame" title="Memorial website preview"></iframe>
+      </div>
+      <div class="output-actions">
+        <button class="btn-primary" onclick="downloadSite()">Download website</button>
+        <button class="btn-secondary" onclick="copyMemoir()">Copy text</button>
+        <button class="btn-secondary" onclick="resetApp()">Start over</button>
+      </div>
+    </div>
+    <div class="tab-panel" id="tab-print">
+      <div class="print-preview" id="print-body"></div>
+      <div class="output-actions">
+        <button class="btn-primary" onclick="window.print()">Print / Save as PDF</button>
+        <button class="btn-secondary" onclick="resetApp()">Start over</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const media = { photos: [], videos: [], texts: [], audios: [] };
+let generatedSiteHTML = '';
+
+// ── UPLOADS ─────────────────────────────────────────────────
+['photo','video','text','audio'].forEach(type => {
+  const zone  = document.getElementById(type+'-zone');
+  const input = document.getElementById(type+'-input');
+  zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('dragover'); handleFiles([...e.dataTransfer.files], type); });
+  input.addEventListener('change', e => { handleFiles([...e.target.files], type); e.target.value = ''; });
+});
+
+function handleFiles(files, type) {
+  files.forEach(file => {
+    const id = Date.now() + Math.random();
+    const reader = new FileReader();
+    if (type === 'photo') {
+      reader.onload = e => {
+        const dataUrl = e.target.result;
+        media.photos.push({ id, dataUrl, base64: dataUrl.split(',')[1], mimeType: file.type||'image/jpeg' });
+        addGridPreview('photo-grid', id, `<img src="${dataUrl}" alt=""><span class="type-badge">photo</span>`, 'photos');
+        updateCount('photo', media.photos.length);
+      }; reader.readAsDataURL(file);
+    } else if (type === 'video') {
+      reader.onload = e => {
+        const dataUrl = e.target.result;
+        media.videos.push({ id, dataUrl, name: file.name });
+        addGridPreview('video-grid', id, `<video src="${dataUrl}" muted playsinline></video><span class="type-badge">video</span>`, 'videos');
+        updateCount('video', media.videos.length);
+      }; reader.readAsDataURL(file);
+    } else if (type === 'text') {
+      reader.onload = e => {
+        media.texts.push({ id, content: e.target.result, name: file.name });
+        const list = document.getElementById('text-list');
+        const div = document.createElement('div'); div.className='text-file-item'; div.dataset.id=id;
+        div.innerHTML = `<span>📄 ${file.name}</span><button class="text-file-remove" onclick="removeMedia('texts',${id},this)">✕</button>`;
+        list.appendChild(div); updateCount('text', media.texts.length);
+      }; reader.readAsText(file);
+    } else if (type === 'audio') {
+      reader.onload = e => {
+        const dataUrl = e.target.result;
+        media.audios.push({ id, dataUrl, name: file.name });
+        const list = document.getElementById('audio-list');
+        const div = document.createElement('div'); div.className='audio-item-row'; div.dataset.id=id;
+        div.innerHTML = `<audio src="${dataUrl}" controls></audio><span style="font-size:12px;color:var(--faded);font-family:'DM Mono',monospace;flex-shrink:0">${file.name}</span><button class="audio-remove" onclick="removeMedia('audios',${id},this)">✕</button>`;
+        list.appendChild(div); updateCount('audio', media.audios.length);
+      }; reader.readAsDataURL(file);
+    }
+  });
+}
+
+function addGridPreview(gridId, id, inner, arrName) {
+  const grid = document.getElementById(gridId);
+  const div = document.createElement('div'); div.className='preview-item'; div.dataset.id=id;
+  div.innerHTML = inner + `<button class="preview-remove" onclick="removeMedia('${arrName}',${id},this)">✕</button>`;
+  grid.appendChild(div);
+}
+
+function removeMedia(arr, id, btn) {
+  const idx = media[arr].findIndex(x => x.id === id);
+  if (idx !== -1) media[arr].splice(idx, 1);
+  btn.closest('[data-id]').remove();
+  updateCount(arr.replace('s',''), media[arr].length);
+}
+
+function updateCount(type, n) {
+  document.getElementById(type+'-count').textContent = n > 0 ? `${n} file${n>1?'s':''} added` : '';
+}
+
+// ── API CALL ─────────────────────────────────────────────────
+async function callAPI(body) {
+  const resp = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err?.detail || `Server error ${resp.status}`);
+  }
+  return resp.json();
+}
+
+// ── GENERATE ─────────────────────────────────────────────────
+function setStep(n) {
+  [1,2,3,4].forEach(i => {
+    const el = document.getElementById('ls-'+i);
+    el.classList.remove('active','done');
+    if (i < n) el.classList.add('done');
+    if (i === n) el.classList.add('active');
+  });
+}
+
+async function generateMemoir() {
+  const name = document.getElementById('person-name').value.trim() || 'My name';
+  const q1=document.getElementById('q1').value.trim(), q2=document.getElementById('q2').value.trim(),
+        q3=document.getElementById('q3').value.trim(), q4=document.getElementById('q4').value.trim(),
+        q5=document.getElementById('q5').value.trim();
+  const errEl = document.getElementById('error-msg'); errEl.classList.remove('visible');
+  const hasContent = media.photos.length||media.videos.length||media.texts.length||media.audios.length||q1||q2||q3||q4||q5;
+  if (!hasContent) { showError('Please upload at least one file or answer at least one question.'); return; }
+
+  document.getElementById('generate-btn').disabled = true;
+  document.getElementById('loading').classList.add('visible');
+  document.getElementById('output-section').classList.remove('visible');
+
+  try {
+    // ── STEP 1 + 2: Write memoir ──────────────────────────
+    setStep(1);
+    const memoirContent = [];
+    const photoSample = media.photos.slice(0, 6);
+    if (photoSample.length > 0) {
+      memoirContent.push({ type:'text', text:`Here are ${photoSample.length} photographs from my life. Study them carefully — the people, occasions, emotions, food, settings.` });
+      for (const p of photoSample) {
+        memoirContent.push({ type:'image', source:{ type:'base64', media_type:p.mimeType, data:p.base64 } });
+      }
+    }
+    if (media.texts.length > 0) {
+      const textContent = media.texts.slice(0,3).map(t=>`--- ${t.name} ---\n${t.content.slice(0,1500)}`).join('\n\n');
+      memoirContent.push({ type:'text', text:`Notes I have written:\n\n${textContent}` });
+    }
+    const answers = [];
+    if (q1) answers.push(`What I want people to remember: ${q1}`);
+    if (q2) answers.push(`A recipe I want to pass down: ${q2}`);
+    if (q3) answers.push(`How I showed love without words: ${q3}`);
+    if (q4) answers.push(`What I want my family to know: ${q4}`);
+    if (q5) answers.push(`A story for my grandchildren: ${q5}`);
+    const mediaNote = [
+      media.videos.length > 0 ? `${media.videos.length} video${media.videos.length>1?'s':''}` : '',
+      media.audios.length > 0 ? `${media.audios.length} audio recording${media.audios.length>1?'s':''}` : ''
+    ].filter(Boolean).join(' and ');
+    if (answers.length > 0) {
+      memoirContent.push({ type:'text', text:`What I, ${name}, want to share:\n${answers.map(a=>`— ${a}`).join('\n')}${mediaNote ? '\n\nI have also included '+mediaNote+' of my life.' : ''}` });
+    }
+    memoirContent.push({ type:'text', text:`My name is ${name}. Write my memoir in first person as me — warm, honest, unhurried. Include 3–4 sections with <h3> headings and <p> paragraphs. End with what I most want to leave behind. Only use <h3> and <p> tags. ~700–900 words. Begin directly with my first words.` });
+
+    setStep(2);
+    const memoirData = await callAPI({ model:'gpt-4o-mini', max_tokens:2500, messages:[{ role:'user', content:memoirContent }] });
+    const memoirHTML = memoirData.content?.find(b=>b.type==='text')?.text || '';
+
+    // ── STEP 3: AI designs the website ───────────────────
+    setStep(3);
+    const photoDataUrls = media.photos.slice(0,12).map(p => p.dataUrl);
+    const videoDataUrls = media.videos.slice(0,4).map(v => v.dataUrl);
+    const audioItems    = media.audios.map(a => ({ dataUrl: a.dataUrl, name: a.name }));
+
+    const websitePrompt = `You are an expert web designer. Create a unique, beautiful, fully self-contained memorial website for ${name}.
+
+Here is their memoir (already written — embed this verbatim):
+${memoirHTML}
+
+Media counts: ${photoDataUrls.length} photos, ${videoDataUrls.length} videos, ${audioItems.length} audio recordings.
+
+Design requirements:
+- Pick a Google Font pairing that fits the emotional tone of the memoir
+- Choose a color palette that feels personal and warm — not generic
+- Hero section with ${name}'s name, beautifully typeset
+- Memoir text with excellent typography and drop cap on first paragraph
+- If photos > 0: a gallery section. Use <img class="photo-slot" data-index="0">, <img class="photo-slot" data-index="1"> etc as placeholders — real images will be injected
+- If videos > 0: a video section. Use <div class="video-slot" data-index="0"></div> etc as placeholders
+- If audio > 0: an audio section. Use <div class="audio-slot" data-index="0"></div> etc as placeholders
+- Smooth CSS-only animations on scroll/load
+- A quiet, beautiful footer
+- Must feel like a premium, real website — not a template
+
+Return ONLY raw HTML starting with <!DOCTYPE html>. No markdown. No explanation.`;
+
+    const siteData = await callAPI({ model:'gpt-4o-mini', max_tokens:4000, messages:[{ role:'user', content:[{ type:'text', text:websitePrompt }] }] });
+    let siteHTML = siteData.content?.find(b=>b.type==='text')?.text || '';
+    siteHTML = siteHTML.replace(/^```html\n?/i,'').replace(/^```\n?/,'').replace(/\n?```$/,'').trim();
+
+    // ── STEP 4: Inject real media ─────────────────────────
+    setStep(4);
+    siteHTML = injectMedia(siteHTML, photoDataUrls, videoDataUrls, audioItems);
+    generatedSiteHTML = siteHTML;
+
+    // ── SHOW OUTPUT ───────────────────────────────────────
+    document.getElementById('loading').classList.remove('visible');
+    document.getElementById('output-title').textContent = `${name}'s memorial`;
+    document.getElementById('print-body').innerHTML = memoirHTML;
+
+    const iframe = document.getElementById('site-frame');
+    iframe.srcdoc = siteHTML;
+    iframe.onload = () => {
+      try { iframe.style.height = (iframe.contentWindow.document.body.scrollHeight + 40) + 'px'; } catch(e) {}
+    };
+
+    document.getElementById('output-section').classList.add('visible');
+    document.getElementById('output-section').scrollIntoView({ behavior:'smooth', block:'start' });
+
+  } catch(err) {
+    document.getElementById('loading').classList.remove('visible');
+    showError(`Something went wrong: ${err.message}`);
+  } finally {
+    document.getElementById('generate-btn').disabled = false;
+  }
+}
+
+// ── INJECT MEDIA INTO GENERATED SITE ────────────────────────
+function injectMedia(html, photoUrls, videoUrls, audioItems) {
+  photoUrls.forEach((url, i) => {
+    html = html.replace(
+      new RegExp(`<img([^>]*?)class="photo-slot"([^>]*?)data-index="${i}"([^>]*?)>`, 'g'),
+      `<img$1class="photo-slot"$2data-index="${i}"$3 src="${url}">`
+    );
+    html = html.replace(
+      new RegExp(`<img([^>]*?)data-index="${i}"([^>]*?)class="photo-slot"([^>]*?)>`, 'g'),
+      `<img$1data-index="${i}"$2class="photo-slot"$3 src="${url}">`
+    );
+  });
+  videoUrls.forEach((url, i) => {
+    html = html.replace(
+      new RegExp(`<div([^>]*?)class="video-slot"([^>]*?)data-index="${i}"([^>]*?)>\\s*</div>`, 'g'),
+      `<video src="${url}" controls playsinline style="width:100%;display:block;border-radius:4px"></video>`
+    );
+  });
+  audioItems.forEach((a, i) => {
+    html = html.replace(
+      new RegExp(`<div([^>]*?)class="audio-slot"([^>]*?)data-index="${i}"([^>]*?)>\\s*</div>`, 'g'),
+      `<div style="margin-bottom:12px"><p style="font-size:12px;opacity:0.6;margin-bottom:6px">${a.name}</p><audio src="${a.dataUrl}" controls style="width:100%"></audio></div>`
+    );
+  });
+  return html;
+}
+
+// ── UI HELPERS ───────────────────────────────────────────────
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  btn.classList.add('active');
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg; el.classList.add('visible');
+}
+
+function copyMemoir() {
+  navigator.clipboard.writeText(document.getElementById('print-body').innerText).then(() => {
+    const btn = event.target; btn.textContent = 'Copied ✓';
+    setTimeout(() => btn.textContent = 'Copy text', 2000);
+  });
+}
+
+function downloadSite() {
+  if (!generatedSiteHTML) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([generatedSiteHTML], { type:'text/html' }));
+  a.download = (document.getElementById('person-name').value.trim()||'memorial').replace(/\s+/g,'-').toLowerCase()+'-memorial.html';
+  a.click();
+}
+
+function resetApp() {
+  Object.keys(media).forEach(k => media[k].length = 0);
+  ['photo-grid','video-grid','text-list','audio-list'].forEach(id => document.getElementById(id).innerHTML = '');
+  ['photo-count','video-count','text-count','audio-count'].forEach(id => document.getElementById(id).textContent = '');
+  document.getElementById('person-name').value = '';
+  ['q1','q2','q3','q4','q5'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('output-section').classList.remove('visible');
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+</script>
+<style>
+@media print {
+  body::before{display:none}
+  .step,.generate-btn,.output-actions,.output-tabs,.error-msg,.loading,.header,#tab-website{display:none!important}
+  #tab-print,.output-section{display:block!important}
+  .output-section{border:none;margin:0;padding:0}
+  .print-preview{font-size:13pt;line-height:1.85}
+}
+</style>
+</body>
+</html>
