@@ -16,4 +16,3 @@ A digital legacy app: preserve memories with photos and written reflections, cur
 
 3. Open http://localhost:8080, go to "Start your memento", complete the flow, and generate your tribute.
 
-OpenAI Key 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
